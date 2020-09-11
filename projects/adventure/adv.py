@@ -73,10 +73,6 @@ def lets_go(path=[], current_path=[], visited={}, prior_room=None, prior_directi
             break
     return path
 
-# currently this explores half of the "fork" map and then gets stuck
-# on the loop, it just keeps going and going even when the path surpasses the length of the rooms list
-# skips the 3-4 connection?
-
 traversal_path = lets_go()
 
 
@@ -109,3 +105,34 @@ else:
 #         break
 #     else:
 #         print("I did not understand that command.")
+
+
+# My lackluster attempt at UPER while getting started
+
+# U - Understand
+# There is a maze of 500 rooms 
+# We need to visit each room at least once
+# visited_rooms will hold the room IDs of where we've been
+# The traversal is complete when the visited_rooms = room list length
+# All possible connections must have been made, no question marks for adjacencies
+# traversal_path will hold the path we have taken (n/s/e/w)
+
+
+
+# P - Plan
+
+# - check if current room id is in visited
+#     - if not
+#         - add it and check exits
+#         - add exits as value w/ the key in visited ( {'n': '?', 's': ?, 'w': '?', 'e': '?'} )
+        
+# - then...
+#     - update previous room w/ traveled direction & new player location ( visited[prior_room][prior_direction] = player.current_room.id )
+#     - update current room w/ opposite of traveled direction and prior_room ( visited[player.current_room.id][opposites[prior_direction]] = prior_room )
+#     - check for ? as adjacency
+#     - go in that direction
+#     - set the prior room and prior direction
+#     - add that direction to the path
+#     - repeat
+
+# - if at a dead end, use BFS to find the closest ? and then proceed down a path there
