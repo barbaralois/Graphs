@@ -13,9 +13,9 @@ world = World()
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
-map_file = "maps/test_loop.txt"
+# map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -38,9 +38,8 @@ opposite = {
 }
 
 
-def lets_go(path=[], visited={}, prior_room=None, prior_direction=None):
-    while len(visited) < len(room_graph) - 1:    
-        print('went from', prior_room, 'to', player.current_room.id)
+def lets_go(path=[], current_path=[], visited={}, prior_room=None, prior_direction=None):
+    while len(visited) < len(room_graph):
         # if the current room is not yet in visited, add it and add the connected directions
         if player.current_room.id not in visited:
             visited[player.current_room.id] = {}
@@ -53,27 +52,30 @@ def lets_go(path=[], visited={}, prior_room=None, prior_direction=None):
         # if we find a direction in the current room with ?, move to it (updating all variables)
         for direction in visited[player.current_room.id]:
             if visited[player.current_room.id][direction] == '?':
-                print('moving', direction)
                 path.append(direction)
+                current_path.append(opposite[direction])
                 prior_room = player.current_room.id 
                 prior_direction = direction
                 player.travel(direction)
                 # run it again!
-                lets_go(path, visited, prior_room, prior_direction)
-        # if we didn't find any ?, go back the way we came
-        # I want this to simply skip the room we just came from but I couldn't figure it out
-        # obviously the opposite isn't always ideal (like when we move up then need to go down and over)  
-        path.append(opposite[prior_direction])
-        prior_room = player.current_room.id
-        prior_direction = path[-1]
-        print('moving:', path[-1])
-        player.travel(prior_direction)
-        print('went from', prior_room, 'to', player.current_room.id)
-        # print('path', path)
-        return path
+                lets_go(path, current_path, visited, prior_room, prior_direction)
+        # if we didn't find any ?, go back the way we came one step at a time until you find a ?
+        # right now I think this takes you all the way back to the start which isn't great
+        # but it does work
+        if len(current_path):
+            go_back = current_path.pop()        
+            player.travel(go_back)
+            path.append(go_back)
+            prior_room = player.current_room.id
+            prior_direction = path[-1]
+            return path
+        else:
+            break
+    return path
 
-# currently this explores half of the "fork" map
+# currently this explores half of the "fork" map and then gets stuck
 # on the loop, it just keeps going and going even when the path surpasses the length of the rooms list
+# skips the 3-4 connection?
 
 traversal_path = lets_go()
 
